@@ -2,10 +2,10 @@
 <html lang="en">
 <head>
 	<meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
-	 <link href="{{url_for('static', filename='css/style.css')}}" rel="stylesheet">
+	<link href="{{url_for('static', filename='css/style.css')}}" rel="stylesheet">
 </head>
 <body>
 
@@ -13,20 +13,43 @@
 <script src="//ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
 <script>window.jQuery || document.write('<script src="{{ url_for('static', filename='jquery-3.1.1.min.js') }}">\x3C/script>')</script>
 <script type=text/javascript>
-  $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
+	$SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
 </script>
 <script type=text/javascript>
-  $(function() {
-    $('#uname_submit').bind('click', function() {
-      $.post($SCRIPT_ROOT + '/set_username', {
-        username: $('input[name="username"]').val()
-    }, function(data) {
-    	if(data.result=="refresh") window.location.reload();
-    	else alert(data.result);
-      }, 'json');
-      return false;
-    });
-  });
+	$(function() {
+		$('#uname_submit').bind('click', function() {
+			$.post($SCRIPT_ROOT + '/set_username', {
+				username: $('input[name="username"]').val()
+			}, function(data) {
+				if(data.result=="refresh") window.location.reload();
+				else alert(data.result);
+			}, 'json');
+			return false;
+		});
+	});
+	$(function() {
+		$('#sentiment_submit').bind('click', function() {
+			if ($('input[name="sentiment"]:checked').length && $('input[name="relevance"]:checked').length) {
+				$.post($SCRIPT_ROOT + '/set_sentiment', {
+					sentiment: $('input[name="sentiment"]:checked').val(),
+					relevance: $('input[name="relevance"]:checked').val()
+					// TODO phrases
+				}, function(data) {
+					if(data.error==0) {
+						$('#document_text').text(data.text);
+						$('input[name="sentiment"]').prop('checked', false);
+						$('input[name="relevance"]').prop('checked', false).checkboxradio("refresh");
+					} else if(data.error==1) {
+						alert('Submission failed, please try again later.')
+					} else alert('Submission error, please contact the administrator.');
+				}, 'json');
+				return false;
+			} else {
+				alert('Please enter a value for both the sentiment and a relevance.')
+			}
+			return false;
+		});
+	});
 </script>
 
 
@@ -40,7 +63,22 @@
 <br>
 {% if username %}
 	<div class="rcorners">
-		<p>{{document['text']}}</p>
+		<p id="document_text">{{text}}</p>
+		<div>
+			Sentiment: 
+			<input type="radio" name="sentiment" value="-1" id="sr1"> <label for="sr1">Negative</label>
+			<input type="radio" name="sentiment" value="0" id="sr2"> <label for="sr2">Neutral</label>
+			<input type="radio" name="sentiment" value="1" id="sr3"> <label for="sr3">Positive</label>
+		</div>
+		<div>
+			Relevance: 
+			<input type="radio" name="relevance" value="-1" id="rr1"> <label for="rr1">Irrelevant</label>
+			<input type="radio" name="relevance" value="0" id="rr2"> <label for="rr2">Neutral</label>
+			<input type="radio" name="relevance" value="1" id="rr3"> <label for="rr3">Relevant</label>
+		</div>
+		<form action="sentiment_submit" method="POST">
+			<input id="sentiment_submit" type="submit" value="Submit">
+		</form>
 	</div>
 {% endif %}
 </body>
