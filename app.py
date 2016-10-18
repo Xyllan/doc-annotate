@@ -74,15 +74,17 @@ def set_sentiment():
 	try:
 		sentiment_score = int(request.form['sentiment'])
 		relevance_score = int(request.form['relevance'])
-		assert(sentiment_score in [-1,0,1] and relevance_score in [-1,0,1]) # Defense against unknown queries
-
+		phrases = request.form.getlist('phrases[]')
+		assert(sentiment_score in [-1,0,1] and relevance_score in [-1,0,1]) # Defense against unknown queries / Sanity check
+		assert(all(phrase in session['document']['text'] for phrase in phrases)) # Defense against unknown queries / Sanity check
+		
 		d = get_document(ObjectId(session['document']['_id'])) # Get a fresh copy of the document
 		sent = d['sentiment'] if 'sentiment' in d else {'num_scored':0, 'sentiments':[]}
 		sent['num_scored']+=1
 		sent['sentiments'].append({'user': {'username':session['username'],'session_id':session['uuid']},
 			'sentiment': sentiment_score,
 			'relevance': relevance_score,
-			'phrases':[]}) # TODO phrases
+			'phrases':phrases})
 		d['sentiment'] = sent
 		res = update_document(d)
 		if res.matched_count > 0:

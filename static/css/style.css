@@ -1,5 +1,8 @@
 div.rcorners {
     border-radius: 25px;
     border: 2px solid #000000;
-    padding: 20px; 
+    padding: 20px;
+    width: auto;
+    margin-left: 20%;
+    margin-right: 20%;
 }
