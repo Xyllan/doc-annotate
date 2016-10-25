@@ -97,7 +97,7 @@ def set_sentiment():
 		if res.matched_count > 0:
 			# Update success, get new document for the user
 			add_document_to_session(session, get_random_document())
-			return jsonify(error = 0, text = session['document']['text'])
+			return jsonify(error = 0, text = session['document']['text'].split())
 		else:
 			# Update failed, display error message
 			return jsonify(error = 1)

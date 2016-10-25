@@ -8,7 +8,10 @@ $(function() {
 				'phrases': phrases
 			}, function(data) {
 				if(data.error==0) {
-					$('#document_text').text(data.text);
+					text = data.text;
+					selected = Array.apply(null, Array(text.length)).map(Number.prototype.valueOf,-1);
+					lastIndex = -2;
+					update_view();
 					phrases = [];
 					$('#phrase_box').html('');
 					$('input[name="sentiment"]').prop('checked', false);
