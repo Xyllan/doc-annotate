@@ -1,10 +1,7 @@
 from flask import Flask, render_template, escape, session, request, redirect, url_for, jsonify
 import os
-from base64 import b64encode
 from uuid import uuid4
-from pymongo import MongoClient
-from bson.objectid import ObjectId
-import random
+from db_utils import add_random_document_to_session, get_document, update_document
 
 app = Flask(__name__)
 app.config.from_object(__name__)
@@ -15,50 +12,13 @@ try:
 except FileNotFoundError:
 	print('WARNING! Using the default secret key!')
 
-client = MongoClient('localhost', 27017)
-db = client.annotation
-documents = db.documents
-
-def get_doc_find_query(username = None, annotated = False):
-	q = {"sentiment.num_annotations":{"$exists":annotated}}
-	if username is not None:
-		q["sentiment.sentiments.user.username"]={"$ne":username}
-	return q
-
-def get_document_count(query):
-	return documents.find(query).count()
-
-def update_document(document):
-	return documents.replace_one({'_id':document['_id']}, document)
-
-def get_document(doc_id):
-	return documents.find_one({"_id":doc_id})
-
-def get_random_document():
-	try:
-		q = get_doc_find_query(session['username'], not session['has_unused'])
-		cnt = get_document_count(q)
-		randid = random.randrange(cnt)
-		doc = documents.find(q).limit(randid+1).skip(randid)[0]
-		return doc
-	except ValueError:
-		if session['has_unused']: # There are no articles left with 0 annotations
-			session['has_unused'] = False
-			return get_random_document()
-		else:
-			return None # There are no articles left that the user hasn't annotated
-
-def add_document_to_session(session, document):
-	session['document'] = {'_id':str(document['_id']),'text':document['text']}
-
 @app.route('/')
 def index():
 	if 'uuid' not in session:
 		session['uuid'] = str(uuid4())
 	if 'username' in session:
 		if not 'document' in session:
-			d = get_random_document()
-			add_document_to_session(session, d)
+			add_random_document_to_session(session)
 		return render_template('index.html', username = session['username'], text = session['document']['text'].split())
 	else:
 		return render_template('index.html')
@@ -84,8 +44,7 @@ def set_sentiment():
 		TODO: this assert will not work if the original document contained phrases separated by new lines and tabs.
 		assert(all(phrase in session['document']['text'] for phrase in phrases)) # Defense against unknown queries / Sanity check
 		"""
-		
-		d = get_document(ObjectId(session['document']['_id'])) # Get a fresh copy of the document
+		d = get_document(session['document']['_id']) # Get a fresh copy of the document
 		sent = d['sentiment'] if 'sentiment' in d else {'num_scored':0, 'sentiments':[]}
 		sent['num_scored']+=1
 		sent['sentiments'].append({'user': {'username':session['username'],'session_id':session['uuid']},
@@ -96,7 +55,7 @@ def set_sentiment():
 		res = update_document(d)
 		if res.matched_count > 0:
 			# Update success, get new document for the user
-			add_document_to_session(session, get_random_document())
+			add_random_document_to_session(session)
 			return jsonify(error = 0, text = session['document']['text'].split())
 		else:
 			# Update failed, display error message
