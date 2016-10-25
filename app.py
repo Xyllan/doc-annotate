@@ -9,7 +9,11 @@ import random
 app = Flask(__name__)
 app.config.from_object(__name__)
 app.config['SECRET_KEY']= 'such secret much wow'
-# app.config.from_object('/app.prop')
+try:
+	with open('app.prop', 'rb') as f:
+		app.config['SECRET_KEY'] = f.read()
+except FileNotFoundError:
+	print('WARNING! Using the default secret key!')
 
 client = MongoClient('localhost', 27017)
 db = client.annotation
@@ -101,12 +105,9 @@ def set_sentiment():
 		# Wrong info supplied with query
 		return jsonify(error = 2)
 
-"""
+
 @app.cli.command('init')
 def init_all():
-	f = open('/app.prop', 'w')
-	f.write('SECRET_KEY=')
-	f.write("'"+b64encode(os.urandom(128)).decode('utf-8')+"'")
-	print('Initialized the annotator.')
-
-"""
+	with open('app.prop', 'wb') as f:
+		f.write(os.urandom(128))
+		print('Initialized the annotator.')

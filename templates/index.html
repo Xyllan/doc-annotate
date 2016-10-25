@@ -14,20 +14,21 @@
 <script>window.jQuery || document.write('<script src="{{ url_for('static', filename='jquery-3.1.1.min.js') }}">\x3C/script>')</script>
 <script type=text/javascript>
 	$SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
-	text = {{text | safe}};
 </script>
-<script src="{{url_for('static', filename='js/index.js')}}"></script>
+<script src="{{url_for('static', filename='js/username.js')}}"></script>
 
 
-<form action="username" method="POST" style="text-align:center;margin-top:30px">
+<div style="text-align:center;margin-top:30px">
 {% if not username %}
-	Username: <input type="text" name="username"> <input id="uname_submit" type="submit" value="Change">
+	Username: <input type="text" name="username"> <input id="uname_submit" type="submit" value="Change" onclick="submitUsername()">
 {% else %}
-	Username: <input type="text" name="username" value={{username}}> <input id="uname_submit" type="submit" value="Change">
+	Username: <input type="text" name="username" value={{username}}> <input id="uname_submit" type="submit" value="Change" onclick="submitUsername()">
 {% endif %}
-</form>
+</div>
 <br>
 {% if username %}
+	<script type = text/javascript>text = {{text | safe}};</script>
+	<script src="{{url_for('static', filename='js/index.js')}}"></script>
 	<div class="rcorners">
 		<table>
 			<tr>

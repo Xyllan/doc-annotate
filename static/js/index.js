@@ -1,14 +1,3 @@
-$(function() {
-	$('#uname_submit').bind('click', function() {
-		$.post($SCRIPT_ROOT + '/set_username', {
-			username: $('input[name="username"]').val()
-		}, function(data) {
-			if(data.result=="refresh") window.location.reload();
-			else alert(data.result);
-		}, 'json');
-		return false;
-	});
-});
 phrases = [];
 $(function() {
 	$('#sentiment_submit').bind('click', function() {
@@ -23,7 +12,7 @@ $(function() {
 					phrases = [];
 					$('#phrase_box').html('');
 					$('input[name="sentiment"]').prop('checked', false);
-					$('input[name="relevance"]').prop('checked', false).checkboxradio("refresh");
+					$('input[name="relevance"]').prop('checked', false);
 				} else if(data.error==1) {
 					alert('Submission failed, please try again later.')
 				} else alert('Submission error, please contact the administrator.');
