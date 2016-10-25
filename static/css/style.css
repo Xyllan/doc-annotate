@@ -6,3 +6,9 @@ div.rcorners {
     margin-left: 20%;
     margin-right: 20%;
 }
+
+span.highlighted {
+	border-radius: 20px;
+	background-color: #a8ff8e;
+	padding: 2px;
+}

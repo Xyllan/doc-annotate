@@ -53,39 +53,54 @@
 			return false;
 		});
 	});
-	$(function(){
-		$("#phrase_submit").prop('disabled', true);
-		$("#phrase_submit").css('color', 'lightgray');
-		$(document).mouseup(function(){
-			var text = "";
-			if (window.getSelection) {
-				text = window.getSelection().toString();
-			} else if (document.selection && document.selection.type != "Control") {
-				text = document.selection.createRange().text;
-			}
-			if(text.length > 0) {
-				$("#phrase_submit").prop('disabled', false);
-				$("#phrase_submit").css('color', 'black');
+	text = {{text | safe}};
+	selected = Array.apply(null, Array(text.length)).map(Number.prototype.valueOf,-1);
+	lastIndex = -2;
+	function update_view() {
+		var ht = '';
+		phrases = [];
+		for (var i = 0; i < selected.length; i++) {
+			if(selected[i] != -1) {
+				var beg = i;
+				var end = beg;
+				for(end;end<selected.length && selected[end] == selected[beg];end++);
+				var phrase = text.slice(beg,end).join(' ');
+				ht += '<span onclick="add_phrase('+selected[i]+')" class="highlighted">' +
+				phrase + '</span> ';
+				phrases.push(phrase);
+				i = end - 1;
 			} else {
-				$("#phrase_submit").prop('disabled', true);
-				$("#phrase_submit").css('color', 'lightgray');
+				ht += '<span onclick="add_phrase('+ i +')">'+text[i]+'</span> ';
 			}
-		});
-		$('#phrase_submit').bind('click', function() {
-			var text = "";
-			if (window.getSelection) {
-				text = window.getSelection().toString();
-			} else if (document.selection && document.selection.type != "Control") {
-				text = document.selection.createRange().text;
+		}
+		$('#document_text').html(ht);
+		$('#phrase_box').html(phrases.join("<br/>"));
+	}
+	function add_phrase(index) {
+		if(selected[index] != -1) { // The word is currently highlighted.
+			var curGroup = selected[index]; // The group this word belongs to.
+			// Dissolve the group.
+			var i = index;
+			while(i < selected.length && selected[i] == curGroup) {
+				selected[i] = -1;
+				i+=1;
 			}
-			phrases.push(text);
-			$('#phrase_box').html(phrases.join("<br/>"));
-		});
-		$('#phrase_clear').bind('click', function() {
-			phrases = [];
-			$('#phrase_box').html('');
-		});
-	});
+			i = index - 1;
+			while(i >= 0 && selected[i] == curGroup) {
+				selected[i] = -1;
+				i-=1;
+			}
+			lastIndex = -2;
+		} else { // The word is not highlighted.
+			if(lastIndex-index == -1 || lastIndex-index == 1) { // Adjacent word selected.
+				selected[index] = selected[lastIndex];
+			} else {
+				selected[index] = index;
+			}
+			lastIndex = index;
+		}
+		update_view();
+	}
 </script>
 
 
@@ -102,7 +117,11 @@
 		<table>
 			<tr>
 				<td style="width:70%;" align="left">
-					<p id="document_text">{{text}}</p>
+					<p id="document_text">
+					{% for word in text: %}
+						<span id="w{{loop.index}}" onclick="add_phrase({{loop.index-1}})">{{word}} </span>
+					{% endfor %}
+					</p>
 					<center>
 						<div>
 							Sentiment: 
@@ -122,8 +141,7 @@
 				<td style="width:30%;padding-left:4%;padding-right:4%;height:1px;">
 					<table style="height:100%;width:100%;">
 						<tr style="height:10%"><td><center><p><b>Phrases</b></p></center></td></tr>
-						<tr style="height:80%;"><td><div id="phrase_box" style="height:100%"></div></td></tr>
-						<tr style="height:10%;"><td><center><input id="phrase_submit" type="submit" value="Add Phrase"> <input id="phrase_clear" type="submit" value="Clear"></center></td></tr>
+						<tr style="height:90%;"><td><div id="phrase_box" style="height:100%"></div></td></tr>
 					</table>
 				</td>
 			</tr>

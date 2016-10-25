@@ -55,7 +55,7 @@ def index():
 		if not 'document' in session:
 			d = get_random_document()
 			add_document_to_session(session, d)
-		return render_template('index.html', username = session['username'], text = session['document']['text'])
+		return render_template('index.html', username = session['username'], text = session['document']['text'].split())
 	else:
 		return render_template('index.html')
 
@@ -76,7 +76,10 @@ def set_sentiment():
 		relevance_score = int(request.form['relevance'])
 		phrases = request.form.getlist('phrases[]')
 		assert(sentiment_score in [-1,0,1] and relevance_score in [-1,0,1]) # Defense against unknown queries / Sanity check
+		"""
+		TODO: this assert will not work if the original document contained phrases separated by new lines and tabs.
 		assert(all(phrase in session['document']['text'] for phrase in phrases)) # Defense against unknown queries / Sanity check
+		"""
 		
 		d = get_document(ObjectId(session['document']['_id'])) # Get a fresh copy of the document
 		sent = d['sentiment'] if 'sentiment' in d else {'num_scored':0, 'sentiments':[]}
