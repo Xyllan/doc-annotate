@@ -2,6 +2,7 @@ from flask import Flask, render_template, escape, session, request, redirect, ur
 import os
 from uuid import uuid4
 from db_utils import add_random_document_to_session, get_document, update_document
+from datetime import datetime
 
 app = Flask(__name__)
 app.config.from_object(__name__)
@@ -50,7 +51,8 @@ def set_sentiment():
 		sent['sentiments'].append({'user': {'username':session['username'],'session_id':session['uuid']},
 			'sentiment': sentiment_score,
 			'relevance': relevance_score,
-			'phrases':phrases})
+			'phrases':phrases,
+			'timestamp':datetime.utcnow().isoformat()})
 		d['sentiment'] = sent
 		res = update_document(d)
 		if res.matched_count > 0:
