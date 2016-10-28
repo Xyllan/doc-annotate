@@ -6,15 +6,18 @@ from copy import deepcopy
 client = None
 db = None
 documents = None
+text_field = None
 base_query = {}
 
-def set_database(host_name, port, db_name, collection_name, prefilter_query):
+def set_database(host_name, port, db_name, collection_name, text_field_name, prefilter_query):
 	global client
 	client = MongoClient(host_name, port)
 	global db
 	db = client[db_name]
 	global documents
 	documents = db[collection_name]
+	global text_field
+	text_field = text_field_name
 	global base_query
 	base_query = prefilter_query
 
@@ -58,7 +61,7 @@ def get_random_document(session):
 			return None # There are no articles left that the user hasn't annotated
 
 def add_document_to_session(session, document):
-	session['document'] = {'_id':str(document['_id']),'text':document['text']}
+	session['document'] = {'_id':str(document['_id']), text_field: document['text']}
 
 def add_random_document_to_session(session):
 	add_document_to_session(session, get_random_document(session))

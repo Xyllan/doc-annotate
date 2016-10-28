@@ -9,7 +9,7 @@ app.config.from_object(__name__)
 try:
 	app.config.from_object('config')
 	set_database(app.config['HOST_NAME'], app.config['PORT'], app.config['DB_NAME'],
-		app.config['COLLECTION_NAME'], app.config['PREFILTER_QUERY'])
+		app.config['COLLECTION_NAME'], app.config['TEXT_FIELD_NAME'], app.config['PREFILTER_QUERY'])
 except ImportError:
 	print('WARNING! Config file not available. Please run "flask init" (ignore this warning if you are running it)')
 
@@ -74,6 +74,7 @@ def init_all():
 		f.write('PORT = 27017\n')
 		f.write('DB_NAME = "annotation"\n')
 		f.write('COLLECTION_NAME = "documents"\n')
+		f.write('TEXT_FIELD_NAME = "text"\n')
 		f.write('PREFILTER_QUERY = {}\n')
 		f.write('SECRET_KEY = ' + str(os.urandom(128))+'\n')
 		print('Initialized the annotator.')
