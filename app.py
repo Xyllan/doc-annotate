@@ -1,17 +1,17 @@
 from flask import Flask, render_template, escape, session, request, redirect, url_for, jsonify
 import os
 from uuid import uuid4
-from db_utils import add_random_document_to_session, get_document, update_document
+from db_utils import add_random_document_to_session, get_document, update_document, set_database
 from datetime import datetime
 
 app = Flask(__name__)
 app.config.from_object(__name__)
-app.config['SECRET_KEY']= 'such secret much wow'
 try:
-	with open('app.prop', 'rb') as f:
-		app.config['SECRET_KEY'] = f.read()
-except FileNotFoundError:
-	print('WARNING! Using the default secret key!')
+	app.config.from_object('config')
+	set_database(app.config['HOST_NAME'], app.config['PORT'], app.config['DB_NAME'],
+		app.config['COLLECTION_NAME'], app.config['PREFILTER_QUERY'])
+except ImportError:
+	print('WARNING! Config file not available. Please run "flask init" (ignore this warning if you are running it)')
 
 @app.route('/')
 def index():
@@ -69,6 +69,11 @@ def set_sentiment():
 
 @app.cli.command('init')
 def init_all():
-	with open('app.prop', 'wb') as f:
-		f.write(os.urandom(128))
+	with open('config.py', 'w') as f:
+		f.write('HOST_NAME = "localhost"\n')
+		f.write('PORT = 27017\n')
+		f.write('DB_NAME = "annotation"\n')
+		f.write('COLLECTION_NAME = "documents"\n')
+		f.write('PREFILTER_QUERY = {}\n')
+		f.write('SECRET_KEY = ' + str(os.urandom(128))+'\n')
 		print('Initialized the annotator.')

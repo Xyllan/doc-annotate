@@ -1,16 +1,29 @@
 import random
 from pymongo import MongoClient
 from bson.objectid import ObjectId
+from copy import deepcopy
 
-client = MongoClient('localhost', 27017)
-db = client.annotation
-documents = db.documents
+client = None
+db = None
+documents = None
+base_query = {}
+
+def set_database(host_name, port, db_name, collection_name, prefilter_query):
+	global client
+	client = MongoClient(host_name, port)
+	global db
+	db = client[db_name]
+	global documents
+	documents = db[collection_name]
+	global base_query
+	base_query = prefilter_query
 
 def get_document_find_query(username = None, annotated = False):
 	""" Returns an object that is used for querying. """
-	q = {"sentiment.num_annotations":{"$exists":annotated}}
+	q = deepcopy(base_query)
+	q["sentiment.num_annotations"] = {"$exists": annotated}
 	if username is not None:
-		q["sentiment.sentiments.user.username"]={"$ne":username}
+		q["sentiment.sentiments.user.username"] = {"$ne":username}
 	return q
 
 def get_document_count(query):

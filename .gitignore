@@ -89,4 +89,4 @@ ENV/
 .ropeproject
 
 # Properties file
-*.prop
+config.py
