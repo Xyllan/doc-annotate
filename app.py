@@ -13,6 +13,13 @@ try:
 except ImportError:
 	print('WARNING! Config file not available. Please run "flask init" (ignore this warning if you are running it)')
 
+def split_with_newline(text):
+	n = text.split('\n')
+	l = ['<br>'] * (len(n) * 2 - 1)
+	l[0::2] = n
+	l = [item.split() if i % 2 == 0 else [item] for (i, item) in enumerate(l)]
+	return [item for sublist in l for item in sublist]
+
 @app.route('/')
 def index():
 	if 'uuid' not in session:
@@ -20,7 +27,7 @@ def index():
 	if 'username' in session:
 		if not 'document' in session:
 			add_random_document_to_session(session)
-		return render_template('index.html', username = session['username'], text = session['document']['text'].split())
+		return render_template('index.html', username = session['username'], text = split_with_newline(session['document']['text']))
 	else:
 		return render_template('index.html')
 

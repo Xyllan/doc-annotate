@@ -35,7 +35,11 @@
 				<td style="width:70%;" align="left">
 					<p id="document_text">
 					{% for word in text: %}
-						<span onclick="add_phrase({{loop.index-1}})">{{word}} </span>
+						{% if word == '<br>' %}
+							<span onclick="add_phrase({{loop.index-1}})"><br></span>
+						{% else %}
+							<span onclick="add_phrase({{loop.index-1}})">{{word}} </span>
+						{% endif %}
 					{% endfor %}
 					</p>
 					<center>
