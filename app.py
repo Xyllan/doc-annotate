@@ -9,7 +9,7 @@ app.config.from_object(__name__)
 try:
 	app.config.from_object('config')
 	set_database(app.config['HOST_NAME'], app.config['PORT'], app.config['DB_NAME'],
-		app.config['COLLECTION_NAME'], app.config['TEXT_FIELD_NAME'], app.config['PREFILTER_QUERY'])
+		app.config['COLLECTION_NAME'], app.config['TEXT_FIELD_NAME'], app.config['PDF_TEXT_FIELD_NAME'], app.config['PREFILTER_QUERY'])
 except ImportError:
 	print('WARNING! Config file not available. Please run "flask init" (ignore this warning if you are running it)')
 
@@ -65,7 +65,7 @@ def set_sentiment():
 		if res.matched_count > 0:
 			# Update success, get new document for the user
 			add_random_document_to_session(session)
-			return jsonify(error = 0, text = session['document']['text'].split())
+			return jsonify(error = 0, text = split_with_newline(session['document']['text']))
 		else:
 			# Update failed, display error message
 			return jsonify(error = 1)
@@ -82,6 +82,7 @@ def init_all():
 		f.write('DB_NAME = "annotation"\n')
 		f.write('COLLECTION_NAME = "documents"\n')
 		f.write('TEXT_FIELD_NAME = "text"\n')
+		f.write('PDF_TEXT_FIELD_NAME = "PDFTEXT"\n')
 		f.write('PREFILTER_QUERY = {}\n')
 		f.write('SECRET_KEY = ' + str(os.urandom(128))+'\n')
 		print('Initialized the annotator.')

@@ -43,7 +43,11 @@ function update_view() {
 			phrases.push(phrase);
 			i = end - 1;
 		} else {
-			ht += '<span onclick="add_phrase('+ i +')">'+text[i]+'</span> ';
+			if(text[i] == '<br>') {
+				ht += text[i];
+			} else {
+				ht += '<span onclick="add_phrase('+ i +')">'+text[i]+'</span> ';
+			}
 		}
 	}
 	$('#document_text').html(ht);

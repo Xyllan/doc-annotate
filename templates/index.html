@@ -32,11 +32,11 @@
 	<div class="rcorners">
 		<table>
 			<tr>
-				<td style="width:70%;" align="left">
+				<td style="width:70%;height:100%" align="left">
 					<p id="document_text">
 					{% for word in text: %}
 						{% if word == '<br>' %}
-							<span onclick="add_phrase({{loop.index-1}})"><br></span>
+							<br>
 						{% else %}
 							<span onclick="add_phrase({{loop.index-1}})">{{word}} </span>
 						{% endif %}

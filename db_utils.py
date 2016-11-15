@@ -7,9 +7,10 @@ client = None
 db = None
 documents = None
 text_field = None
+pdf_text_field = None
 base_query = {}
 
-def set_database(host_name, port, db_name, collection_name, text_field_name, prefilter_query):
+def set_database(host_name, port, db_name, collection_name, text_field_name, pdf_text_field_name, prefilter_query):
 	global client
 	client = MongoClient(host_name, port)
 	global db
@@ -18,6 +19,8 @@ def set_database(host_name, port, db_name, collection_name, text_field_name, pre
 	documents = db[collection_name]
 	global text_field
 	text_field = text_field_name
+	global pdf_text_field
+	pdf_text_field = pdf_text_field_name
 	global base_query
 	base_query = prefilter_query
 
@@ -56,12 +59,15 @@ def get_random_document(session):
 	except ValueError:
 		if session['has_unused']: # There are no articles left with 0 annotations
 			session['has_unused'] = False
-			return get_random_document()
+			return get_random_document(session)
 		else:
 			return None # There are no articles left that the user hasn't annotated
 
 def add_document_to_session(session, document):
-	session['document'] = {'_id':str(document['_id']), text_field: document['text']}
+	text = document[text_field]
+	if pdf_text_field is not None and pdf_text_field in document and document[pdf_text_field]:
+		text += '\n\nPDF Text:\n\n'+document[pdf_text_field]
+	session['document'] = {'_id':str(document['_id']), 'text': text}
 
 def add_random_document_to_session(session):
 	add_document_to_session(session, get_random_document(session))

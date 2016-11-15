@@ -3,8 +3,8 @@ div.rcorners {
     border: 2px solid #000000;
     padding: 20px;
     width: auto;
-    margin-left: 20%;
-    margin-right: 20%;
+    margin-left: 10%;
+    margin-right: 10%;
 }
 
 span.highlighted {
