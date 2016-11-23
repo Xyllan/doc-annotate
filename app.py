@@ -26,8 +26,10 @@ def index():
 		session['uuid'] = str(uuid4())
 	if 'username' in session:
 		if not 'document' in session:
-			add_random_document_to_session(session)
-		return render_template('index.html', username = session['username'], text = split_with_newline(session['document']['text']))
+			res = add_random_document_to_session(session)
+			if not res: # No more documents left to annotate for the current user
+				return render_template('index.html', result = False,  username = session['username'])
+		return render_template('index.html', result = True, username = session['username'], text = split_with_newline(session['document']['text']))
 	else:
 		return render_template('index.html')
 
@@ -64,7 +66,9 @@ def set_sentiment():
 		res = update_document(d)
 		if res.matched_count > 0:
 			# Update success, get new document for the user
-			add_random_document_to_session(session)
+			res = add_random_document_to_session(session)
+			if not res: # No more documents left to annotate for the current user
+				return jsonify(error = 3)
 			return jsonify(error = 0, text = split_with_newline(session['document']['text']))
 		else:
 			# Update failed, display error message

@@ -64,10 +64,21 @@ def get_random_document(session):
 			return None # There are no articles left that the user hasn't annotated
 
 def add_document_to_session(session, document):
+	""" Adds the given document to the current session.
+	Returns true if successful, false if document cannot ve added.
+	"""
+	if document is None:
+		if 'document' in session:
+			del(session['document'])
+		return False
 	text = document[text_field]
 	if pdf_text_field is not None and pdf_text_field in document and document[pdf_text_field]:
 		text += '\n\nPDF Text:\n\n'+document[pdf_text_field]
 	session['document'] = {'_id':str(document['_id']), 'text': text}
+	return True
 
 def add_random_document_to_session(session):
-	add_document_to_session(session, get_random_document(session))
+	""" Adds a random document to the current session.
+	Returns true if successful, false if document cannot ve added.
+	"""
+	return add_document_to_session(session, get_random_document(session))

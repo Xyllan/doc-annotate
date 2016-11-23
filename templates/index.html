@@ -27,46 +27,52 @@
 </div>
 <br>
 {% if username %}
-	<script type = text/javascript>text = {{text | safe}};</script>
-	<script src="{{url_for('static', filename='js/index.js')}}"></script>
-	<div class="rcorners">
-		<table>
-			<tr>
-				<td style="width:70%;height:100%" align="left">
-					<p id="document_text">
-					{% for word in text: %}
-						{% if word == '<br>' %}
-							<br>
-						{% else %}
-							<span onclick="add_phrase({{loop.index-1}})">{{word}} </span>
-						{% endif %}
-					{% endfor %}
-					</p>
-					<center>
-						<div>
-							Sentiment: 
-							<input type="radio" name="sentiment" value="-1" id="sr1"> <label for="sr1">Negative</label>
-							<input type="radio" name="sentiment" value="0" id="sr2"> <label for="sr2">Neutral</label>
-							<input type="radio" name="sentiment" value="1" id="sr3"> <label for="sr3">Positive</label>
-						</div>
-						<div>
-							Relevance: 
-							<input type="radio" name="relevance" value="-1" id="rr1"> <label for="rr1">Irrelevant</label>
-							<input type="radio" name="relevance" value="0" id="rr2"> <label for="rr2">Neutral</label>
-							<input type="radio" name="relevance" value="1" id="rr3"> <label for="rr3">Relevant</label>
-						</div>
-						<input id="sentiment_submit" type="submit" value="Submit">
-					</center>
-				</td>
-				<td style="width:30%;padding-left:4%;padding-right:4%;height:1px;">
-					<table style="height:100%;width:100%;">
-						<tr style="height:10%"><td><center><p><b>Phrases</b></p></center></td></tr>
-						<tr style="height:90%;"><td><div id="phrase_box" style="height:100%"></div></td></tr>
-					</table>
-				</td>
-			</tr>
-		</table>
-	</div>
+	{% if result %}
+		<script type = text/javascript>text = {{text | safe}};</script>
+		<script src="{{url_for('static', filename='js/index.js')}}"></script>
+		<div class="rcorners" id="annotate_box">
+			<table>
+				<tr>
+					<td style="width:70%;height:100%" align="left">
+						<p id="document_text">
+						{% for word in text: %}
+							{% if word == '<br>' %}
+								<br>
+							{% else %}
+								<span onclick="add_phrase({{loop.index-1}})">{{word}} </span>
+							{% endif %}
+						{% endfor %}
+						</p>
+						<center>
+							<div>
+								Sentiment: 
+								<input type="radio" name="sentiment" value="-1" id="sr1"> <label for="sr1">Negative</label>
+								<input type="radio" name="sentiment" value="0" id="sr2"> <label for="sr2">Neutral</label>
+								<input type="radio" name="sentiment" value="1" id="sr3"> <label for="sr3">Positive</label>
+							</div>
+							<div>
+								Relevance: 
+								<input type="radio" name="relevance" value="-1" id="rr1"> <label for="rr1">Irrelevant</label>
+								<input type="radio" name="relevance" value="0" id="rr2"> <label for="rr2">Neutral</label>
+								<input type="radio" name="relevance" value="1" id="rr3"> <label for="rr3">Relevant</label>
+							</div>
+							<input id="sentiment_submit" type="submit" value="Submit">
+						</center>
+					</td>
+					<td style="width:30%;padding-left:4%;padding-right:4%;height:1px;">
+						<table style="height:100%;width:100%;">
+							<tr style="height:10%"><td><center><p><b>Phrases</b></p></center></td></tr>
+							<tr style="height:90%;"><td><div id="phrase_box" style="height:100%"></div></td></tr>
+						</table>
+					</td>
+				</tr>
+			</table>
+		</div>
+	{% else %}
+		<div class="rcorners">
+			<center><p>No more documents left to annotate. Thank you for your time!</p></center>
+		</div>
+	{% endif %}
 {% endif %}
 </body>
 </html>

@@ -17,8 +17,12 @@ $(function() {
 					$('input[name="sentiment"]').prop('checked', false);
 					$('input[name="relevance"]').prop('checked', false);
 				} else if(data.error==1) {
-					alert('Submission failed, please try again later.')
-				} else alert('Submission error, please contact the administrator.');
+					alert('Submission failed, please try again later.');
+				} else if(data.error==2) {
+					alert('Submission error, please contact the administrator.');
+				} else if(data.error==3) {
+					$('#annotate_box').html('<center><p>No more documents left to annotate. Thank you for your time!</p></center>');
+				}
 			}, 'json');
 			return false;
 		} else {
